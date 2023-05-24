@@ -15,31 +15,41 @@ The pipeline involves the following steps:
 ## Installation
 Before you begin, make sure you have installed the plink-pipelines python package. You can install it using pip:
 
-`pip install plink-pipelines`
+```shell
+pip install plink-pipelines
+```
 
 ## Usage
 ## Step 1: Preprocessing
 
 To preprocess the data, run the following command:
 
-`bash preprocess.sh $trait`
+```shell
+bash preprocess.sh $trait
+```
 Where `$trait` is the trait of interest.
 
 ## Step 2: LD Pruning and P-value Thresholding
 
 To perform LD pruning and p-value thresholding, run the following command:
 
-`bash prune.sh $trait`
+```shell
+bash prune.sh $trait
+```
 ## Step 3: Model Training
 
 To train the VAE-PRS model, run the following command:
 
-`python vae_modules.eur.py --trait $trait`
+```shell
+python vae_modules.eur.py --trait $trait
+```
 ## Step 4: Evaluation
 
 To interpret the trained model using SHAP, run the following command:
 
-`python explainer.eur.py`
+```shell
+python explainer.eur.py
+```
 ## Contact
 If you have any issues or questions, feel free to open an issue in the Github repository or contact us.
 
