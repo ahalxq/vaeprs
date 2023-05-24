@@ -51,5 +51,5 @@ To interpret the trained model using SHAP, run the following command:
 python explainer.eur.py
 ```
 ## Contact
-If you have any issues or questions, feel free to open an issue in the Github repository or contact us.
+If you have any issues or questions, feel free to open an issue in the Github repository or contact us at xli8@unc.edu.
 
