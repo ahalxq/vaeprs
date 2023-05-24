@@ -6,7 +6,7 @@ The pipeline involves the following steps:
 
 1. Preprocessing: The script preprocess.sh extracts selected variants and individuals from the entire genotype data and creates numpy arrays for each individual, where each line is a sample and each column is a genetic variant.
 
-2. LD pruning and p-value thresholding: The script prune.sh uses PLINK to prune variants with r threshold 0.1 and p-value threshold 1e-6.
+2. LD pruning and p-value thresholding: The script prune.sh uses PLINK to further prune selected variants with r threshold 0.1 and p-value threshold 1e-6.
 
 3. Model Training: The script vae_modules.eur.py is used to train the VAE-PRS model with a selected trait.
 
@@ -27,7 +27,7 @@ To preprocess the data, run the following command:
 ```shell
 bash preprocess.sh $trait
 ```
-Where `$trait` is the trait of interest.
+Where `$trait` is the phenotypic trait of interest.
 
 ## Step 2: LD Pruning and P-value Thresholding
 
