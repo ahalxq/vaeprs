@@ -13,17 +13,17 @@ The pipeline involves the following steps:
 4. **Evaluation**: The script explainer.eur.py interprets the trained model using SHAP.
 
 ## Installation
-Before you begin, make sure you have installed the plink-pipelines python package and PLINK(https://www.cog-genomics.org/plink/2.0/). You can install it using pip:
-
-```shell
-pip install plink-pipelines
-```
-
-Please also make sure to create and activate a conda environment with dependencies for **VAE-PRS**.
+Before you begin, make sure to create and activate a conda environment with dependencies for **VAE-PRS**. 
 
 ```shell
 conda env create -f environment.yml
 conda activate vae_prs_env
+```
+
+Please also make sure you have installed the plink-pipelines python package and PLINK(https://www.cog-genomics.org/plink/2.0/). You can install it using pip:
+
+```shell
+pip install plink-pipelines
 ```
 
 ## Usage
@@ -32,23 +32,23 @@ conda activate vae_prs_env
 To preprocess the data, run the following command:
 
 ```shell
-bash preprocess.sh $trait
+bash preprocess.sh $trait $feature
 ```
-Where `$trait` is the phenotypic trait of interest.
+Where `$trait` is the phenotypic trait of interest and `$feature` is the name for selected variants.
 
 ## Step 2: LD Pruning and P-value Thresholding
 
 To perform LD pruning and p-value thresholding, run the following command:
 
 ```shell
-bash prune.sh $trait
+bash prune.sh $trait $feature
 ```
 ## Step 3: Model Training
 
 To train the VAE-PRS model, run the following command:
 
 ```shell
-python vae_modules.eur.py --trait $trait
+python vae_modules.eur.py --trait $trait --feature $feature
 ```
 ## Step 4: Evaluation
 
