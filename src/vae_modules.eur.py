@@ -13,6 +13,7 @@ from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from argparse import ArgumentParser
+
 pl.seed_everything(1234)
 
 class ConvLayer(torch.nn.Module):
@@ -33,13 +34,6 @@ class VAE(pl.LightningModule):
 
         self.save_hyperparameters()
 
-        # self.layer1 = nn.Linear(in_dim, enc_out_dim*4)
-        # self.layer2 = nn.Linear(enc_out_dim*4, enc_out_dim*2)
-        # self.layer3 = nn.Linear(enc_out_dim*2, enc_out_dim)
-        # self.layer4 = nn.Linear(latent_dim, enc_out_dim)
-        # self.layer5 = nn.Linear(enc_out_dim, enc_out_dim*4)
-        # self.layer6 = nn.Linear(enc_out_dim*4, in_dim)
-        # self.activate = nn.ReLU()
         # distribution parameters
         self.fc_mu = nn.Linear(enc_out_dim, latent_dim)
         self.fc_var = nn.Linear(enc_out_dim, latent_dim)
@@ -66,33 +60,9 @@ class VAE(pl.LightningModule):
         self.alpha = alpha
         self.l1_lambda = l1_lambda
         self.l2_lambda = l2_lambda
-    # def encoder(self, x):
-    #     x = self.layer1(x)
-    #     x = self.activate(x)
-    #     x = self.layer2(x)
-    #     x = self.activate(x)
-    #     x = self.layer3(x)
-    #     return x
-
-    # def decoder(self, x):
-    #     x = self.layer4(x)
-    #     x = self.activate(x)
-    #     x = self.layer5(x)
-    #     x = self.activate(x)
-    #     x = self.layer6(x)
-    #     return x
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=1e-6)
-
-    # def gaussian_likelihood(self, x_hat, logscale, x):
-    #     scale = torch.exp(logscale)
-    #     mean = x_hat
-    #     dist = torch.distributions.Normal(mean, scale)
-
-    #     # measure prob of seeing image under p(x|z)
-    #     log_pxz = dist.log_prob(x)
-    #     return log_pxz.sum(dim=(1, 2, 3))
 
     def l1_reg(self):
         l1_norm = self.fr_mu.weight.abs().sum() + self.fr_var.weight.abs().sum()
@@ -267,9 +237,7 @@ class MyDataset(data.Dataset):
         x = np.load(self.folder+'/'+npy_name)[:3,:]
         x = np.argmax(x, axis=0)
         x = x.T.flatten()
-        # print(x.shape)
         return torch.from_numpy(x).to(torch.float32), y
-        # , id
 
     def __len__(self):
         return len(self.npy_list)
@@ -282,17 +250,15 @@ def train():
     parser.add_argument('--feature', type=str, default='t100k', help='type of feature')
     parser.add_argument('--samples', type=int, default=None, help='training sample size')
     parser.add_argument('--alpha', type=float, default=0.7, help='weight on label loss')
-    
+    parser.add_argument('--home', type=str, default="./vaeprs/simulated/", help='Input directory')
+
     args=parser.parse_args()
 
     # make a dataloader 
-    # home = "/pine/scr/x/i/xiaoqil/prs_dl/"
-    # home = "/proj/yunligrp/users/xiaoqi/prs_dl/data/"
-    home = "/work/users/x/i/xiaoqil/prsdl/"
-    train_dir = home + args.trait+"/npy_ukb_EUR_"+args.trait+"_train."+ args.feature+ "/processed/full_inds/full_chrs/encoded_outputs/"
-    train_pheno_dir = "/proj/yunligrp/users/xiaoqi/prs_dl/data/pheno/ukb_EUR_pheno_train.regenie.tsv"
-    test_dir = home + args.trait+"/npy_ukb_EUR_"+args.trait+"_test."+ args.feature+ "/processed/full_inds/full_chrs/encoded_outputs/"
-    test_pheno_dir = "/proj/yunligrp/users/xiaoqi/prs_dl/data/pheno/ukb_EUR_pheno_test.regenie.kinship.rm.tsv"
+    train_dir = args.home + args.trait+"/npy_"+args.trait+"_train."+ args.feature+ "/processed/full_inds/full_chrs/encoded_outputs/"
+    train_pheno_dir = "/proj/yunligrp/users/xiaoqi/prs_dl/data/pheno/pheno_train.regenie.tsv"
+    test_dir = args.home + args.trait+"/npy_"+args.trait+"_test."+ args.feature+ "/processed/full_inds/full_chrs/encoded_outputs/"
+    test_pheno_dir = "/proj/yunligrp/users/xiaoqi/prs_dl/data/pheno/pheno_test.regenie.kinship.rm.tsv"
 
     y_tr = pd.read_csv(train_pheno_dir, sep='\t').dropna()
     y_te = pd.read_csv(test_pheno_dir, sep='\t')[["ID",args.trait]].dropna()
@@ -301,7 +267,7 @@ def train():
         y_tr = pd.read_csv(train_pheno_dir, sep='\t').dropna()
         num_samples = y_tr.shape[0]
     else:
-        train_id = "/proj/yunligrp/users/xiaoqi/prs_dl/data/"+args.trait+"."+ str(args.samples) + ".train.id"
+        train_id = args.home + args.trait+"."+ str(args.samples) + ".train.id"
         ids = pd.read_csv(train_id, sep='\t', header = 0, names = ["ID"]).dropna()
         tmp = pd.read_csv(train_pheno_dir, sep='\t').dropna()
         y_tr = tmp.merge(ids, on="ID")
@@ -315,16 +281,6 @@ def train():
     len_trset = len(train_dataset)
     val_size = len_trset//10
     train_set, val_set = random_split(train_dataset,[len_trset-val_size ,val_size])
-    # else:
-    #     len_trset = num_samples
-    #     val_size = len_trset//10    
-    #     train_set, sub_set = random_split(train_dataset,[len_trset,len(train_dataset)-len_trset])
-    #     sub_set2, val_set = random_split(sub_set,[len(train_dataset)-len_trset-val_size ,val_size])
-    
-    # get sample ids for the specific random split
-    # for (data, target, idx) in train_set:
-    #     print(idx)
-    # quit()
 
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=64, shuffle=True, num_workers=4)
     val_loader = torch.utils.data.DataLoader(val_set, batch_size=64, shuffle=True, num_workers=4)
@@ -333,17 +289,15 @@ def train():
 
     vae = VAE(train_dataset[0][0].shape[0], alpha = args.alpha)
     es = EarlyStopping(monitor='val_label_loss',patience=8)
-    wandb_logger = WandbLogger('ukb_EUR_'+args.trait + '_'+ args.feature, project='PRS_DL')  
+    wandb_logger = WandbLogger(''+args.trait + '_'+ args.feature, project='PRS_DL')  
     trainer = pl.Trainer(gpus=args.gpus, max_epochs=200, callbacks=[es], logger=wandb_logger)
     trainer.fit(vae, train_loader, val_loader)
-    # 
 
 
     print('model training is done.')
     # save your model
-    # trainer.save_checkpoint('../output/models/ukb_EUR_'+args.trait +'_model.vae.'+ args.feature + '.' + str(len_trset) + '.'+ str(args.alpha) +'.pth') + '.' +str(len_trset) 
-    trainer.save_checkpoint('../output/models/ukb_EUR_'+args.trait +'_model.vae.'+ args.feature +'.pth')  
-    vae = VAE.load_from_checkpoint('../output/models/ukb_EUR_'+args.trait +'_model.vae.'+ args.feature+'.pth',in_dim=train_dataset[0][0].shape[0])
+    trainer.save_checkpoint('../output/models/'+args.trait +'_model.vae.'+ args.feature +'.pth')  
+    vae = VAE.load_from_checkpoint('../output/models/'+args.trait +'_model.vae.'+ args.feature+'.pth',in_dim=train_dataset[0][0].shape[0])
     trainer.test(vae,test_loader)
 
     r2=None
@@ -368,24 +322,6 @@ def train():
     print('r2 = {}'.format(r2_score(ry,r2)))
     print('PCC = {}'.format(corr))
     print('MSE = {}'.format(mean_squared_error(ry,r2)))
-
-    # ry = ry.cpu().numpy().squeeze()
-    # r2 = r2.cpu().numpy().squeeze()
-    # rvar = rvar.cpu().numpy().squeeze()
-    # np.savetxt("../output/vae/ukb_EUR_"+args.trait +"." + args.feature + ".prs.txt", r2)
-    # np.savetxt("../output/vae/ukb_EUR_"+args.trait +"." + args.feature + ".var.txt", rvar)
-    # sst = np.sum((ry - np.mean(ry))**2)
-    # ssres = np.sum((ry - r2)**2)
-    # rsq = 1 - (ssres / sst)
-    # scatter1 = plt.scatter(ry,r2)
-    # print("PCC: " + str(corr))
-    # plt.title("R2: "+str(corr**2) + "; PCC: " + str(corr))
-    # plt.xlabel("Measured")
-    # plt.ylabel("Predicted")
-    # plt.savefig('../output/figs/ukb_EUR_'+args.trait +".scatter.t100k.vae.png",dpi=300)
-
-
-
 
 if __name__ == '__main__':
     train()
