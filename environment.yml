@@ -1,0 +1,16 @@
+name: vae_prs_env
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy
+  - pandas
+  - pytorch
+  - pytorch-lightning
+  - scikit-learn
+  - scipy
+  - matplotlib
+  - tqdm
+  - pip
+  - pip:
+    - wandb
