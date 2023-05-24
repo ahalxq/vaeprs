@@ -245,20 +245,21 @@ class MyDataset(data.Dataset):
 
 def train():
     parser = ArgumentParser()
-    parser.add_argument('--gpus', type=int, default=1)
-    parser.add_argument('--trait', type=str, default='red_blood_cell_count', help='trait of interest')
-    parser.add_argument('--feature', type=str, default='t100k', help='type of feature')
+    parser.add_argument('--gpus', type=int, default=1, help='number of GPUs')
+    parser.add_argument('--trait', type=str, default='example', help='trait of interest')
+    parser.add_argument('--feature', type=str, default='100', help='type of feature')
     parser.add_argument('--samples', type=int, default=None, help='training sample size')
     parser.add_argument('--alpha', type=float, default=0.7, help='weight on label loss')
     parser.add_argument('--home', type=str, default="./vaeprs/simulated/", help='Input directory')
+    parser.add_argument('--outdir', type=str, default="./vaeprs/simulated/", help='Output directory')
 
     args=parser.parse_args()
 
     # make a dataloader 
     train_dir = args.home + args.trait+"/npy_"+args.trait+"_train."+ args.feature+ "/processed/full_inds/full_chrs/encoded_outputs/"
-    train_pheno_dir = "/proj/yunligrp/users/xiaoqi/prs_dl/data/pheno/pheno_train.regenie.tsv"
+    train_pheno_dir = args.home + "pheno_train.regenie.tsv"
     test_dir = args.home + args.trait+"/npy_"+args.trait+"_test."+ args.feature+ "/processed/full_inds/full_chrs/encoded_outputs/"
-    test_pheno_dir = "/proj/yunligrp/users/xiaoqi/prs_dl/data/pheno/pheno_test.regenie.kinship.rm.tsv"
+    test_pheno_dir = args.home + "pheno_test.regenie.kinship.rm.tsv"
 
     y_tr = pd.read_csv(train_pheno_dir, sep='\t').dropna()
     y_te = pd.read_csv(test_pheno_dir, sep='\t')[["ID",args.trait]].dropna()
@@ -296,8 +297,8 @@ def train():
 
     print('model training is done.')
     # save your model
-    trainer.save_checkpoint('../output/models/'+args.trait +'_model.vae.'+ args.feature +'.pth')  
-    vae = VAE.load_from_checkpoint('../output/models/'+args.trait +'_model.vae.'+ args.feature+'.pth',in_dim=train_dataset[0][0].shape[0])
+    trainer.save_checkpoint(args.outdir+args.trait +'_model.vae.'+ args.feature +'.pth')  
+    vae = VAE.load_from_checkpoint(args.outdir+args.trait +'_model.vae.'+ args.feature+'.pth',in_dim=train_dataset[0][0].shape[0])
     trainer.test(vae,test_loader)
 
     r2=None
