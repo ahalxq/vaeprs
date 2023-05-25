@@ -4,7 +4,7 @@ This repository contains the source code for VAE-PRS, a novel approach for polyg
 ## Overview
 The pipeline involves the following steps:
 
-1. **Preprocessing**: The script `preprocess.sh` extracts selected variants and individuals from the entire genotype data and creates numpy arrays for each individual, where each line is a sample and each column is a genetic variant.
+1. **Preprocessing**: The script `preprocess.sh` extracts selected variants and individuals from the entire genotype data and creates numpy arrays for each individual.
 
 2. **LD Pruning and P-value Thresholding**: The script `prune.sh` uses PLINK to further prune selected variants with r threshold 0.1 and p-value threshold 1e-6.
 
