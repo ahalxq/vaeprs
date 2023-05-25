@@ -36,7 +36,7 @@ bash preprocess.sh $trait $feature
 ```
 Where `$trait` is the phenotypic trait of interest and `$feature` is the name for selected variants.
 
-The sample ids should be formatted as:
+The sample ids are unique IDs, one line per ID. For example, 
 ```shell
 1
 2
