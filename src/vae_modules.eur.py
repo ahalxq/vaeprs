@@ -244,7 +244,7 @@ class MyDataset(data.Dataset):
 
 
 def train():
-    parser = ArgumentParser()
+    parser = ArgumentParser(description="This script uses variational autoencoder based regression model to predict polygenic quantitative traits.")
     parser.add_argument('--gpus', type=int, default=1, help='number of GPUs')
     parser.add_argument('--trait', type=str, default='example', help='trait of interest')
     parser.add_argument('--feature', type=str, default='100', help='type of feature')
